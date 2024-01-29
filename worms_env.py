@@ -145,7 +145,7 @@ class WormsEnv(gym.Env):
                 canvas,
                 0,
                 (pix_square_size * x, 0),
-                (pix_square_size * x, pix_square_size*len(self._table) ),
+                (pix_square_size * x, pix_square_size*len(self._table)),
                 width=3,
             )
 
