@@ -27,13 +27,13 @@ class WormsEnv(gym.Env):
             for line in f:
                 self._table.append(line.split())
         self.field = build_field(self._table)
-        self.action_space = spaces.Dict(
-            {"next_step": [i for i in range(len(self.field.x))]}
-        )
-        self.near_head = set()
+        self.available_movements = {"next_step": np.array([i for i in range(len(self.field.x))])}
         self.render_mode = render_mode
         self.window = None
         self.clock = None
+        # useless attributes
+        self.action_space = gym.spaces.Box(low=-1.0, high=2.0, shape=(3, 4), dtype=np.float32)
+        self.observation_space = gym.spaces.Box(low=-1.0, high=2.0, shape=(3, 4), dtype=np.float32)
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
@@ -42,13 +42,10 @@ class WormsEnv(gym.Env):
             "worms": self.worms_lengths,
             "field": self.field
         }
-        self.observation_space = spaces.Dict(
-            observation
-        )
 
         if self.render_mode == "human":
             self._render_frame()
-        return observation, None
+        return self.observation_space, observation
 
     def step(self, action):
         reward = self.field.x[action]
@@ -78,14 +75,19 @@ class WormsEnv(gym.Env):
             "worms": self.worms_lengths,
             "field": self.field
         }
-        self.observation_space = spaces.Dict(
-            observation
-        )
-        return observation, reward, terminated, False, None
+        return self.observation_space, reward, terminated, False, observation
 
+    def set_active_head(self,val:int):
+        self.active_head = val
+
+    def append_worms_positions(self, node: int):
+        self.worms_positions.append(node)
     def render(self):
         if self.render_mode == "rgb_array":
             return self._render_frame()
+
+    def render_frame(self):
+        return self._render_frame()
 
     def _render_frame(self):
         if self.window is None and self.render_mode == "human":
@@ -116,16 +118,18 @@ class WormsEnv(gym.Env):
                     (pix_square_size, pix_square_size),
                 ),
             )
-        row = self.active_head // len(self._table[0])
-        column = self.active_head % len(self._table[0])
-        pygame.draw.rect(
-            canvas,
-            (0, 255, 0),
-            pygame.Rect(
-                (pix_square_size * column, pix_square_size * row),
-                (pix_square_size, pix_square_size),
-            ),
-        )
+        if self.active_head is not None:
+            row = self.active_head // len(self._table[0])
+            column = self.active_head % len(self._table[0])
+
+            pygame.draw.rect(
+                canvas,
+                (0, 255, 0),
+                pygame.Rect(
+                    (pix_square_size * column, pix_square_size * row),
+                    (pix_square_size, pix_square_size),
+                ),
+            )
 
         # Finally, add some gridlines
         for x in range(len(self._table) + 1):
@@ -141,7 +145,7 @@ class WormsEnv(gym.Env):
                 canvas,
                 0,
                 (pix_square_size * x, 0),
-                (pix_square_size * x, self.window_size),
+                (pix_square_size * x, pix_square_size*len(self._table) ),
                 width=3,
             )
 
