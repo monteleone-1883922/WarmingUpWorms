@@ -32,8 +32,8 @@ class WormsEnv(gym.Env):
         self.window = None
         self.clock = None
         # useless attributes
-        self.action_space = gym.spaces.Box(low=-1.0, high=2.0, shape=(3, 4), dtype=np.float32)
-        self.observation_space = gym.spaces.Box(low=-1.0, high=2.0, shape=(3, 4), dtype=np.float32)
+        self.action_space = spaces.Box(low=-1.0, high=2.0, shape=(3, 4), dtype=np.float32)
+        self.observation_space = spaces.Box(low=-1.0, high=2.0, shape=(3, 4), dtype=np.float32)
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
