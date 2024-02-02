@@ -27,7 +27,7 @@ class WormsEnv(gym.Env):
             for line in f:
                 self._table.append(line.split())
         self.field = build_field(self._table)
-        self.available_movements = {"next_step": np.array([i for i in range(len(self.field.x))])}
+        self.available_movements = [i for i in range(len(self.field.x))]
         self.render_mode = render_mode
         self.window = None
         self.clock = None
@@ -42,7 +42,7 @@ class WormsEnv(gym.Env):
             "worms": self.worms_lengths,
             "field": self.field
         }
-
+        self.available_movements = [i for i in range(len(self.field.x))]
         if self.render_mode == "human":
             self._render_frame()
         return self.observation_space, observation
@@ -75,6 +75,7 @@ class WormsEnv(gym.Env):
             "worms": self.worms_lengths,
             "field": self.field
         }
+        self.available_movements = actions
         return self.observation_space, reward, terminated, False, observation
 
     def set_active_head(self,val:int):
