@@ -42,15 +42,19 @@ class WormsEnv(gym.Env):
             "worms": self.worms_lengths,
             "field": self.field
         }
+        self.worms_positions = []
+        self.active_worm = 0
+        self.active_worm_len = 0
+        self.active_head = None
         self.available_movements = [i for i in range(len(self.field.x))]
         if self.render_mode == "human":
             self._render_frame()
         return self.observation_space, observation
 
     def step(self, action):
-        reward = self.field.x[action]
+        reward = int(self.field.x[action][0])
         self.worms_positions.append(action)
-        self.field.x[action] = self.worm_placed_val
+        self.field.x[action][0] = self.worm_placed_val
         self.active_worm_len += 1
         actions = compute_next_actions(action, self.field.x, len(self._table[0]), self.worm_placed_val)
         terminated = False
