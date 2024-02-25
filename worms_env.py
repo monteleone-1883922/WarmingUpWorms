@@ -26,7 +26,7 @@ class WormsEnv(gym.Env):
             for line in f:
                 self._table.append(line.split())
         self.field, max_val_node = build_field(self._table)
-        self.worm_placed_val = max_val_node * sum(self.worms_lengths)
+        self.worm_placed_val = -max_val_node * sum(self.worms_lengths)
         self.available_movements = [i for i in range(len(self.field.x))]
         self.render_mode = render_mode
         self.window = None
@@ -37,7 +37,8 @@ class WormsEnv(gym.Env):
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
-        self.field = build_field(self._table)
+        self.field, max_val_node = build_field(self._table)
+        self.worm_placed_val = -max_val_node * sum(self.worms_lengths)
         observation = {
             "worms": self.worms_lengths,
             "field": self.field

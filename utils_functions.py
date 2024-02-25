@@ -45,9 +45,9 @@ def build_field(table: list[list[str]], enable_wormholes: bool = False, max_val:
 def compute_next_actions(node: int, nodes: torch.tensor, row_len: int, worm_placed_val: int,wormholes_val: int = 0, wormholes_near: list[int] = []):
     #for now no handling wormholes
     neighbors = []
-    if node + 1 < len(nodes) and nodes[node + 1][0] != worm_placed_val:
+    if (node % row_len) + 1 < row_len and nodes[node + 1][0] != worm_placed_val:
         neighbors.append(node+1)
-    if node - 1 >= 0 and nodes[node - 1][0] != worm_placed_val:
+    if (node % row_len) - 1 >= 0 and nodes[node - 1][0] != worm_placed_val:
         neighbors.append(node - 1)
     if node + row_len < len(nodes) and nodes[node + row_len][0] != worm_placed_val:
         neighbors.append(node+row_len)
