@@ -9,7 +9,7 @@ class WormsEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
     def __init__(self, env_file: str, render_mode: str = None,
-                 enable_wormholes: bool = False, max_val: int = 0, worm_placed_val: int = -100000,
+                 enable_wormholes: bool = False, max_val: int = 0,
                  use_single_worm: bool = True):
         self.window_size = 512
         self.active_worm = 0
@@ -17,7 +17,6 @@ class WormsEnv(gym.Env):
         self._table = []
         self.worms_positions = []
         self.wormholes_enabled = enable_wormholes
-        self.worm_placed_val = worm_placed_val
         self.active_head = None
         with open(env_file, "r") as f:
             f.readline()
@@ -26,7 +25,8 @@ class WormsEnv(gym.Env):
                 self.worms_lengths = self.worms_lengths[:1]
             for line in f:
                 self._table.append(line.split())
-        self.field = build_field(self._table)
+        self.field, max_val_node = build_field(self._table)
+        self.worm_placed_val = max_val_node * sum(self.worms_lengths)
         self.available_movements = [i for i in range(len(self.field.x))]
         self.render_mode = render_mode
         self.window = None
@@ -66,13 +66,13 @@ class WormsEnv(gym.Env):
         elif len(actions) == 0 and self.active_worm_len != self.worms_lengths[self.active_worm]:
             terminated = True
             self.active_head = None
-            reward = -1000000
+            reward = self.worm_placed_val 
         elif self.active_worm_len == self.worms_lengths[self.active_worm] and self.active_worm + 1 < len(
                 self.worms_lengths):
             self.active_head = None
             self.active_worm += 1
             self.active_worm_len = 0
-            actions = [i for i in range(len(self.field.x))]
+            actions = [i for i in range(len(self.field.x)) if self.field.x[i][0] != self.worm_placed_val]
         if self.render_mode == "human":
             self._render_frame()
         observation = {

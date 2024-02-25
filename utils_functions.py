@@ -8,6 +8,7 @@ def build_field(table: list[list[str]], enable_wormholes: bool = False, max_val:
     edge_end = []
     nodes = []
     len_row = len(table[0])
+    max_val = 0
     if enable_wormholes:
         near_wormholes = build_near_wormholes(table)
     for i in range(len(table)):
@@ -20,6 +21,7 @@ def build_field(table: list[list[str]], enable_wormholes: bool = False, max_val:
             else:
                 node = int(table[i][j])
             nodes.append([node])
+            max_val = max(max_val, node)
             if i + 1 < len(table):
                 edge_begin.append(i * len_row + j)
                 edge_end.append((i+1) * len_row + j)
@@ -37,7 +39,7 @@ def build_field(table: list[list[str]], enable_wormholes: bool = False, max_val:
     nodes = torch.tensor(nodes, dtype=torch.float)
     edge_index = torch.cat([edge_begin.unsqueeze(0), edge_end.unsqueeze(0)], dim=0)
     #if enable wormholes return also near_wormholes
-    return Data(x=nodes, edge_index=edge_index)
+    return Data(x=nodes, edge_index=edge_index), max_val
 
 
 def compute_next_actions(node: int, nodes: torch.tensor, row_len: int, worm_placed_val: int,wormholes_val: int = 0, wormholes_near: list[int] = []):
